@@ -1,4 +1,4 @@
-﻿/*	
+/*	
 * 输入组件，负责绑定输入、添加输入上下文、移除输入上下文、获取移动和视角组件等方法。
 */
 
@@ -92,8 +92,11 @@ void UCustomFPSInputComponent::BindInput(UInputComponent* PlayerInputComponent)
 
 	if (RunAction)
 	{
+		// 按住时 Started 或每帧 Triggered 都进入跑步；松开时 Completed 或 Canceled 都退出。
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Started, this, &UCustomFPSInputComponent::RunStarted);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Triggered, this, &UCustomFPSInputComponent::RunStarted);
 		EnhancedInput->BindAction(RunAction, ETriggerEvent::Completed, this, &UCustomFPSInputComponent::RunCompleted);
+		EnhancedInput->BindAction(RunAction, ETriggerEvent::Canceled, this, &UCustomFPSInputComponent::RunCompleted);
 	}
 
 	if (SquatAction)

@@ -6,7 +6,9 @@
 #include "CustomFPSCharacter.h"
 
 #include "Camera/CameraComponent.h"
+#include "Containers/Ticker.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 
 ACustomFPSCharacter::ACustomFPSCharacter()
@@ -27,15 +29,20 @@ ACustomFPSCharacter::ACustomFPSCharacter()
 	FPSWeapon = CreateDefaultSubobject<UCustomFPSWeaponComponent>(TEXT("FPSWeapon"));
 	FPSLocomotion->InitializeMovement(GetCharacterMovement());
 
-	// 相机先挂在眼睛高度，构造完成后会再对齐到身体骨骼。
+	// 相机独立挂在胶囊体上，运行时再对齐到骨骼节点，晃动只加在它自己身上。
 	FirstPersonCameraComponent = CreateDefaultSubobject<UCameraComponent>(TEXT("FirstPersonCamera"));
 	FirstPersonCameraComponent->SetupAttachment(GetCapsuleComponent());
 	FirstPersonCameraComponent->SetRelativeLocation(FVector(0.f, 0.f, BaseEyeHeight));
 	FPSView->SetupCamera(FirstPersonCameraComponent);
 
-	// 手臂挂在相机下，跟随头部。
+	// 手臂锚点和相机同级。瞄准跟着锚点，相机晃动不会带动枪。
+	ArmsAnchor = CreateDefaultSubobject<USceneComponent>(TEXT("ArmsAnchor"));
+	ArmsAnchor->SetupAttachment(GetCapsuleComponent());
+	ArmsAnchor->SetRelativeLocation(FVector(0.f, 0.f, BaseEyeHeight));
+	FPSView->SetupArmsAnchor(ArmsAnchor);
+
 	FirstPersonMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("FirstPersonMesh"));
-	FirstPersonMesh->SetupAttachment(FirstPersonCameraComponent);
+	FirstPersonMesh->SetupAttachment(ArmsAnchor);
 	FirstPersonMesh->SetOnlyOwnerSee(true);
 	FirstPersonMesh->SetCollisionProfileName(FName("NoCollision"));
 	FirstPersonMesh->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::FirstPerson;
@@ -62,12 +69,31 @@ ACustomFPSCharacter::ACustomFPSCharacter()
 void ACustomFPSCharacter::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
-	RefreshPresentation();
+	// 属性面板的 PostEditChange 会重跑构造。当时再改组件会嵌套 PreEditChange 并触发断言。
+	QueuePresentationRefresh();
+}
+
+void ACustomFPSCharacter::QueuePresentationRefresh()
+{
+	if (bPresentationRefreshQueued)
+	{
+		return;
+	}
+
+	bPresentationRefreshQueued = true;
+	FTSTicker::GetCoreTicker().AddTicker(FTickerDelegate::CreateWeakLambda(this, [this](float)
+	{
+		bPresentationRefreshQueued = false;
+		RefreshPresentation();
+		return false;
+	}));
 }
 
 void ACustomFPSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+	// 自己看不见身体，但镜头要读它的骨骼。不能因为没被渲染就停掉动画。
+	GetMesh()->VisibilityBasedAnimTickOption = EVisibilityBasedAnimTickOption::AlwaysTickPoseAndRefreshBones;
 	RefreshPresentation();
 }
 
@@ -126,6 +152,10 @@ void ACustomFPSCharacter::OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHe
 
 void ACustomFPSCharacter::RefreshPresentation()
 {
+	if (FirstPersonMesh && ArmsAnchor && FirstPersonMesh->GetAttachParent() != ArmsAnchor)
+	{
+		FirstPersonMesh->AttachToComponent(ArmsAnchor, FAttachmentTransformRules::SnapToTargetNotIncludingScale);
+	}
 	if (FPSView)
 	{
 		FPSView->UpdateCameraAttachment();

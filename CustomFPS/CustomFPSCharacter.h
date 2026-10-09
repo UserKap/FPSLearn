@@ -14,43 +14,48 @@
 #include "CustomFPSCharacter.generated.h"
 
 class UCameraComponent;
+class USceneComponent;
 class USkeletalMeshComponent;
 
 /**
  * 第一人称角色。
  * 身体和网格挂在角色上，能力拆到输入、移动、视角、枪械四个组件。
  */
-UCLASS(Blueprintable)
+UCLASS(Blueprintable, PrioritizeCategories=("FPS|组件"))
 class UE_LEARNFPS_API ACustomFPSCharacter : public ACharacter
 {
 	GENERATED_BODY()
 
 	/** 映射上下文和按键绑定。 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCustomFPSInputComponent> FPSInput;
 
 	/** 行走、跑步、下蹲、瞄准和移动速度。 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCustomFPSLocomotionComponent> FPSLocomotion;
 
 	/** 鼠标视角、开镜视野、侧身和相机骨骼。 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCustomFPSViewComponent> FPSView;
 
 	/** 枪械插槽和静态网格部件。 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCustomFPSWeaponComponent> FPSWeapon;
 
-	/** 第一人称手臂模型 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	/** 手臂锚点。跟着瞄准和骨骼节点，不吃相机晃动。 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<USceneComponent> ArmsAnchor;
+
+	/** 第一人称手臂模型，挂在手臂锚点下，不是相机的子物体。 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> FirstPersonMesh;
 
 	/** 第一人称枪械模型，挂在手臂网格下 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<USkeletalMeshComponent> WeaponMesh;
 
 	/** 第一人称相机 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="Components", meta=(AllowPrivateAccess="true"))
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCameraComponent> FirstPersonCameraComponent;
 
 public:
@@ -64,15 +69,60 @@ public:
 	virtual void OnStartCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 	virtual void OnEndCrouch(float HalfHeightAdjust, float ScaledHalfHeightAdjust) override;
 
+	/** 是否瞄准 */
 	UFUNCTION(BlueprintPure, Category="FPS", meta=(DisplayName="是否瞄准"))
 	bool IsAiming() const { return FPSLocomotion && FPSLocomotion->IsAiming(); }
 
+	/** 是否跑步 */
 	UFUNCTION(BlueprintPure, Category="FPS", meta=(DisplayName="是否跑步"))
 	bool IsSprinting() const { return FPSLocomotion && FPSLocomotion->IsSprinting(); }
 
+	/** 本地左右速度。向右为正，大约在 -1 到 1。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="MoveX", BlueprintThreadSafe))
+	float GetMoveX() const { return FPSLocomotion ? FPSLocomotion->GetMoveX() : 0.f; }
+
+	/** 本地前后速度。向前为正，大约在 -1 到 1。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="MoveY", BlueprintThreadSafe))
+	float GetMoveY() const { return FPSLocomotion ? FPSLocomotion->GetMoveY() : 0.f; }
+
+	/** 水平速度，厘米/秒。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="Speed", BlueprintThreadSafe))
+	float GetSpeed() const { return FPSLocomotion ? FPSLocomotion->GetSpeed() : 0.f; }
+
+	/** 垂直速度，厘米/秒。向上为正。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="VerticalSpeed", BlueprintThreadSafe))
+	float GetVerticalSpeed() const { return FPSLocomotion ? FPSLocomotion->GetVerticalSpeed() : 0.f; }
+
+	/** 是否下蹲 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="是否下蹲", BlueprintThreadSafe))
+	bool IsCrouching() const { return FPSLocomotion && FPSLocomotion->IsCrouching(); }
+
+	/** 是否在空中 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="是否在空中", BlueprintThreadSafe))
+	bool IsFalling() const { return FPSLocomotion && FPSLocomotion->IsFalling(); }
+
+	/** 控制器俯仰角。向上为正。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="AimPitch", BlueprintThreadSafe))
+	float GetAimPitch() const { return FPSView ? FPSView->GetAimPitch() : 0.f; }
+
+	/** 控制器偏航相对角色朝向的差。向右为正。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="AimYaw", BlueprintThreadSafe))
+	float GetAimYaw() const { return FPSView ? FPSView->GetAimYaw() : 0.f; }
+
+	/** 当前侧身滚转角。向右为正。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="LeanAngle", BlueprintThreadSafe))
+	float GetLeanAngle() const { return FPSView ? FPSView->GetLeanAngle() : 0.f; }
+
+	/** 获取第一人称手臂模型 */	
 	USkeletalMeshComponent* GetFirstPersonMesh() const { return FirstPersonMesh; }
+
+	/** 获取第一人称枪械模型 */
 	USkeletalMeshComponent* GetWeaponMesh() const { return WeaponMesh; }
+
+	/** 获取第一人称相机 */
 	UCameraComponent* GetFirstPersonCameraComponent() const { return FirstPersonCameraComponent; }
+
+	/** 获取输入组件 */
 	UCustomFPSInputComponent* GetFPSInput() const { return FPSInput; }
 	UCustomFPSLocomotionComponent* GetLocomotion() const { return FPSLocomotion; }
 	UCustomFPSViewComponent* GetView() const { return FPSView; }
@@ -80,4 +130,7 @@ public:
 
 private:
 	void RefreshPresentation();
+	void QueuePresentationRefresh();
+
+	bool bPresentationRefreshQueued = false;
 };
