@@ -1,0 +1,12 @@
+CompileFlags:
+  Add:
+    - /std:c++20
+    - --driver-mode=cl
+  Remove:
+    - -std=c++14
+Diagnostics:
+  # UE headers are noisy under clang; keep navigation/completion usable
+  Suppress: "*"
+  UnusedIncludes: None
+Index:
+  Background: Build
