@@ -12,6 +12,11 @@
 #include "Animation/AnimInstance.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "MetasoundSource.h"
+#include "NiagaraComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "UObject/ConstructorHelpers.h"
 
 ACustomFPSWeapon::ACustomFPSWeapon()
 {
@@ -37,6 +42,18 @@ ACustomFPSWeapon::ACustomFPSWeapon()
 	Muzzle.PartName = TEXT("Muzzle");
 	Muzzle.AttachSocket = TEXT("Muzzle");
 	WeaponParts.Add(Muzzle);
+
+	static ConstructorHelpers::FObjectFinder<UMetaSoundSource> FireSoundAsset(TEXT("/Game/MetaSound/Weapon/00_Mcx/MS_00_MCX.MS_00_MCX"));
+	if (FireSoundAsset.Succeeded())
+	{
+		FireSound = FireSoundAsset.Object;
+	}
+
+	static ConstructorHelpers::FObjectFinder<UNiagaraSystem> FireEffectAsset(TEXT("/Game/ShotSystem/Shot_VFX/VIRTUS_MuzzleFlash.VIRTUS_MuzzleFlash"));
+	if (FireEffectAsset.Succeeded())
+	{
+		FireEffect = FireEffectAsset.Object;
+	}
 }
 
 /* 建造武器 */
@@ -147,12 +164,115 @@ void ACustomFPSWeapon::FireRound(AActor* RequestedBy)
 		GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Green, TEXT("True"));
 	}
 	PlayFireAnimations();
+	PlayFireSound();
+	PlayFireEffect();
 	OnRoundFired(RequestedBy);
 }
 
+void ACustomFPSWeapon::PlayFireSound()
+{
+	if (!FireSound)
+	{
+		return;
+	}
+
+	USceneComponent* AttachParent = nullptr;
+	FName Socket = NAME_None;
+	if (!ResolveMuzzle(AttachParent, Socket))
+	{
+		UGameplayStatics::PlaySoundAtLocation(this, FireSound, GetActorLocation());
+		return;
+	}
+
+	UGameplayStatics::SpawnSoundAttached(FireSound, AttachParent, Socket);
+}
+
+void ACustomFPSWeapon::PlayFireEffect()
+{
+	if (!FireEffect)
+	{
+		return;
+	}
+
+	USceneComponent* AttachParent = nullptr;
+	FName Socket = NAME_None;
+	if (!ResolveMuzzle(AttachParent, Socket))
+	{
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FireEffect, GetActorLocation());
+		return;
+	}
+
+	// 先挂上但不激活。第一人称枪口特效如果先在世界通道里爆开，这一发就过去了，镜头里看不到。
+	UNiagaraComponent* Effect = UNiagaraFunctionLibrary::SpawnSystemAttached(
+		FireEffect,
+		AttachParent,
+		Socket,
+		FVector::ZeroVector,
+		FRotator::ZeroRotator,
+		EAttachLocation::SnapToTarget,
+		true,
+		false,
+		ENCPoolMethod::None,
+		false);
+	if (!Effect)
+	{
+		UE_LOG(LogUE_LearnFPS, Warning, TEXT("%s failed to spawn fire effect %s."), *GetName(), *GetNameSafe(FireEffect));
+		return;
+	}
+
+	// 和武器网格同一条第一人称通道。
+	Effect->SetForceLocalPlayerEffect(true);
+	Effect->SetOnlyOwnerSee(true);
+	Effect->SetFirstPersonPrimitiveType(EFirstPersonPrimitiveType::FirstPerson);
+	Effect->SetTranslucentSortPriority(100);
+	Effect->SetBoundsScale(20.f);
+	Effect->Activate(true);
+}
+
+/* 解析枪口 */
+bool ACustomFPSWeapon::ResolveMuzzle(USceneComponent*& OutComponent, FName& OutSocket) const
+{
+	OutComponent = nullptr;
+	OutSocket = NAME_None;
+
+	UStaticMeshComponent* Part = FindWeaponPart(FireSoundPart);
+	if (!Part)
+	{
+		return false;
+	}
+
+	OutComponent = Part;
+	if (!FireSoundSocket.IsNone() && Part->DoesSocketExist(FireSoundSocket))
+	{
+		OutSocket = FireSoundSocket;
+	}
+	return true;
+}
+
+/* 查找武器部件 */
+UStaticMeshComponent* ACustomFPSWeapon::FindWeaponPart(FName PartName) const
+{
+	if (PartName.IsNone())
+	{
+		return nullptr;
+	}
+
+	for (UStaticMeshComponent* Part : WeaponPartComponents)
+	{
+		if (IsValid(Part) && Part->ComponentHasTag(PartName))
+		{
+			return Part;
+		}
+	}
+
+	return nullptr;
+}
+
+/* 播放开火动画 */
 void ACustomFPSWeapon::PlayFireAnimations()
 {
 	AActor* HolderActor = GetOwner();
+	// 判断持枪者是否实现了持枪者接口
 	const bool bHasHolder = HolderActor && HolderActor->GetClass()->ImplementsInterface(UCustomFPSWeaponHolder::StaticClass());
 	if (bHasHolder && ICustomFPSWeaponHolder::Execute_IsHolderSprinting(HolderActor))
 	{
@@ -264,12 +384,12 @@ void ACustomFPSWeapon::Equip(USceneComponent* AttachParent)
 	}
 
 	SetOwner(AttachParent->GetOwner());
-	// 取得持枪者接口，持枪者是玩家、其他玩家或 AI。
+	// 取得持枪者接口
 	WeaponHolder = Cast<ICustomFPSWeaponHolder>(GetOwner());
 	AttachToComponent(AttachParent, FAttachmentTransformRules::SnapToTargetIncludingScale, AttachSocket);
-	ApplyFirstPersonView();
-	RebuildParts();
 	bEquipped = true;
+	RebuildParts();
+	ApplyFirstPersonView();
 	OnEquipped();
 }
 
@@ -353,6 +473,10 @@ void ACustomFPSWeapon::RebuildParts()
 			Part->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::FirstPerson;
 		}
 		Part->SetStaticMesh(Desc.Mesh);
+		if (!Desc.PartName.IsNone())
+		{
+			Part->ComponentTags.Add(Desc.PartName);
+		}
 		Part->SetupAttachment(WeaponMesh, Desc.AttachSocket);
 		Part->RegisterComponent();
 		WeaponPartComponents.Add(Part);

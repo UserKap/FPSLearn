@@ -53,7 +53,7 @@ ACustomFPSCharacter::ACustomFPSCharacter()
 	FirstPersonMesh->bCastDynamicShadow = false;
 	FPSWeapon->SetArms(FirstPersonMesh);
 
-	// 第三人称身体，自己看不见。
+	// 第三人称身体
 	GetMesh()->SetOwnerNoSee(true);
 	GetMesh()->FirstPersonPrimitiveType = EFirstPersonPrimitiveType::WorldSpaceRepresentation;
 	GetMesh()->SetRelativeLocation(FVector(0.f, 0.f, -96.f));
@@ -72,9 +72,6 @@ void ACustomFPSCharacter::RepairViewComponent()
 	{
 		return;
 	}
-
-	// 旧蓝图在热重载时把这个引用存成了空。新蓝图没有这份存档，所以是好的。
-	// 组件对象还在，把指针接回去，细节面板才能列出镜头参数。
 	if (FPSView != Found)
 	{
 		FPSView = Found;
@@ -98,7 +95,6 @@ void ACustomFPSCharacter::OnConstruction(const FTransform& Transform)
 {
 	Super::OnConstruction(Transform);
 	RepairViewComponent();
-	// 属性面板的 PostEditChange 会重跑构造。当时再改组件会嵌套 PreEditChange 并触发断言。
 	QueuePresentationRefresh();
 }
 
@@ -141,6 +137,7 @@ void ACustomFPSCharacter::BeginPlay()
 	RefreshPresentation();
 }
 
+/* 客户端重连 */
 void ACustomFPSCharacter::PawnClientRestart()
 {
 	Super::PawnClientRestart();

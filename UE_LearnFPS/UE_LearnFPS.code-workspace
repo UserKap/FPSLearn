@@ -6,22 +6,52 @@
 		},
 		{
 			"name": "UE5",
-			"path": "D:\\Unreal\\UE_5.8"
+			"path": "D:\\UE\\UE_5.8"
 		}
 	],
 	"settings": {
+		"clangd.enable": true,
+		"clangd.arguments": [
+			"--background-index",
+			"--header-insertion=never",
+			"--completion-style=detailed",
+			"--limit-results=40"
+		],
+		"clangd.onConfigChanged": "restart",
+		"clangd.onConfigChangedForceEnable": true,
+		"clangd.fallbackFlags": [
+			"--target=x86_64-pc-windows-msvc",
+			"-std=c++20"
+		],
+		"C_Cpp.intelliSenseEngine": "disabled",
+		"C_Cpp.autocomplete": "disabled",
+		"C_Cpp.errorSquiggles": "disabled",
+		"C_Cpp.formatting": "disabled",
+		"files.associations": {
+			"*.h": "cpp",
+			"*.hh": "cpp",
+			"*.hpp": "cpp",
+			"*.hxx": "cpp",
+			"*.inl": "cpp",
+			"*.cpp": "cpp",
+			"*.cc": "cpp",
+			"*.cxx": "cpp",
+			"*.c": "c"
+		},
+		"task.allowAutomaticTasks": "on",
 		"js/ts.tsc.autoDetect": "off",
 		"npm.autoDetect": "off",
 		"terminal.integrated.env.windows": {
-			"PATH": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64;${env:PATH}",
-			"DOTNET_ROOT": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64",
-			"DOTNET_HOST_PATH": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64\\dotnet.exe",
+			"PATH": "D:\\UE\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64;${env:PATH}",
+			"DOTNET_ROOT": "D:\\UE\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64",
+			"DOTNET_HOST_PATH": "D:\\UE\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64\\dotnet.exe",
 			"DOTNET_MULTILEVEL_LOOKUP": "0",
 			"DOTNET_ROLL_FORWARD": "LatestMajor"
 		}
 	},
 	"extensions": {
 		"recommendations": [
+			"llvm-vs-code-extensions.vscode-clangd",
 			"ms-vscode.cpptools",
 			"ms-dotnettools.csharp"
 		]
@@ -37,13 +67,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Debug",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -54,7 +84,7 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Debug",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -63,7 +93,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -74,13 +104,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Debug",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -91,13 +121,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"DebugGame",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -108,7 +138,7 @@
 					"UE_LearnFPS",
 					"Win64",
 					"DebugGame",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -117,7 +147,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -128,13 +158,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"DebugGame",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -145,13 +175,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Development",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -162,7 +192,7 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Development",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -171,7 +201,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -182,13 +212,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Development",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -199,13 +229,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Test",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -216,7 +246,7 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Test",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -225,7 +255,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -236,13 +266,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Test",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -253,13 +283,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Shipping",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -270,7 +300,7 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Shipping",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -279,7 +309,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -290,13 +320,13 @@
 					"UE_LearnFPS",
 					"Win64",
 					"Shipping",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -307,13 +337,13 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"Debug",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -324,7 +354,7 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"Debug",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -333,7 +363,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -344,13 +374,13 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"Debug",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -361,13 +391,13 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"DebugGame",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -378,7 +408,7 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"DebugGame",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -387,7 +417,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -398,13 +428,13 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"DebugGame",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -415,13 +445,13 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"Development",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -432,7 +462,7 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"Development",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
@@ -441,7 +471,7 @@
 				],
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -452,13 +482,13 @@
 					"UE_LearnFPSEditor",
 					"Win64",
 					"Development",
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-waitmutex"
 				],
 				"problemMatcher": "$msCompile",
 				"type": "shell",
 				"options": {
-					"cwd": "D:\\Unreal\\UE_5.8"
+					"cwd": "D:\\UE\\UE_5.8"
 				}
 			}
 		]
@@ -469,156 +499,156 @@
 			{
 				"name": "Launch UE_LearnFPS (Debug)",
 				"request": "launch",
-				"program": "E:\\Project\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-Debug.exe",
+				"program": "D:\\UnityProject\\FPS\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-Debug.exe",
 				"preLaunchTask": "UE_LearnFPS Win64 Debug Build",
 				"args": [
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPS (DebugGame)",
 				"request": "launch",
-				"program": "E:\\Project\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-DebugGame.exe",
+				"program": "D:\\UnityProject\\FPS\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-DebugGame.exe",
 				"preLaunchTask": "UE_LearnFPS Win64 DebugGame Build",
 				"args": [
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPS (Development)",
 				"request": "launch",
-				"program": "E:\\Project\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame.exe",
+				"program": "D:\\UnityProject\\FPS\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame.exe",
 				"preLaunchTask": "UE_LearnFPS Win64 Development Build",
 				"args": [
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPS (Test)",
 				"request": "launch",
-				"program": "E:\\Project\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-Test.exe",
+				"program": "D:\\UnityProject\\FPS\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-Test.exe",
 				"preLaunchTask": "UE_LearnFPS Win64 Test Build",
 				"args": [
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPS (Shipping)",
 				"request": "launch",
-				"program": "E:\\Project\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-Shipping.exe",
+				"program": "D:\\UnityProject\\FPS\\UE_LearnFPS\\Binaries\\Win64\\UnrealGame-Win64-Shipping.exe",
 				"preLaunchTask": "UE_LearnFPS Win64 Shipping Build",
 				"args": [
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPSEditor (Debug)",
 				"request": "launch",
-				"program": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-Debug.exe",
+				"program": "D:\\UE\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-Debug.exe",
 				"preLaunchTask": "UE_LearnFPSEditor Win64 Debug Build",
 				"args": [
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject"
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject"
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPSEditor (DebugGame)",
 				"request": "launch",
-				"program": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-DebugGame.exe",
+				"program": "D:\\UE\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor-Win64-DebugGame.exe",
 				"preLaunchTask": "UE_LearnFPSEditor Win64 DebugGame Build",
 				"args": [
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject"
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject"
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
 				"name": "Launch UE_LearnFPSEditor (Development)",
 				"request": "launch",
-				"program": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
+				"program": "D:\\UE\\UE_5.8\\Engine\\Binaries\\Win64\\UnrealEditor.exe",
 				"preLaunchTask": "UE_LearnFPSEditor Win64 Development Build",
 				"args": [
-					"E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject"
+					"D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject"
 				],
-				"cwd": "D:\\Unreal\\UE_5.8",
+				"cwd": "D:\\UE\\UE_5.8",
 				"stopAtEntry": false,
 				"console": "integratedTerminal",
 				"type": "cppvsdbg",
-				"visualizerFile": "D:\\Unreal\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
+				"visualizerFile": "D:\\UE\\UE_5.8\\Engine\\Extras\\VisualStudioDebugging\\Unreal.natvis",
 				"sourceFileMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				},
 				"sourceMap": {
-					"D:\\build\\++UE5\\Sync": "D:\\Unreal\\UE_5.8"
+					"D:\\build\\++UE5\\Sync": "D:\\UE\\UE_5.8"
 				}
 			},
 			{
@@ -626,25 +656,25 @@
 				"type": "coreclr",
 				"request": "launch",
 				"preLaunchTask": "UnrealBuildTool Win64 Development Build",
-				"program": "D:\\Unreal\\UE_5.8\\Engine\\Build\\BatchFiles\\RunUBT.bat",
+				"program": "D:\\UE\\UE_5.8\\Engine\\Build\\BatchFiles\\RunUBT.bat",
 				"args": [
 					"-projectfiles",
 					"-vscode",
-					"-project=E:\\Project\\UE_LearnFPS\\UE_LearnFPS.uproject",
+					"-project=D:\\UnityProject\\FPS\\UE_LearnFPS\\UE_LearnFPS.uproject",
 					"-game",
 					"-engine",
 					"-dotnet"
 				],
 				"env": {
-					"PATH": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64;${env:PATH}",
-					"DOTNET_ROOT": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64",
-					"DOTNET_HOST_PATH": "D:\\Unreal\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64\\dotnet.exe",
+					"PATH": "D:\\UE\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64;${env:PATH}",
+					"DOTNET_ROOT": "D:\\UE\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64",
+					"DOTNET_HOST_PATH": "D:\\UE\\UE_5.8\\Engine\\Binaries\\ThirdParty\\DotNet\\10.0\\win-x64\\dotnet.exe",
 					"DOTNET_MULTILEVEL_LOOKUP": "0",
 					"DOTNET_ROLL_FORWARD": "LatestMajor"
 				},
 				"console": "integratedTerminal",
 				"stopAtEntry": false,
-				"cwd": "D:\\Unreal\\UE_5.8"
+				"cwd": "D:\\UE\\UE_5.8"
 			}
 		]
 	}

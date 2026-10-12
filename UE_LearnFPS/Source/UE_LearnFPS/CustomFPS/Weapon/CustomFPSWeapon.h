@@ -11,6 +11,8 @@
 class ICustomFPSWeaponHolder;
 
 class UAnimMontage;
+class UMetaSoundSource;
+class UNiagaraSystem;
 class USkeletalMeshComponent;
 class UStaticMesh;
 class UStaticMeshComponent;
@@ -50,7 +52,7 @@ enum class EWeaponFireMode : uint8
 /** 武器基类。在蓝图里继承它来做具体的枪。 */
 UCLASS(Abstract, Blueprintable, meta=(DisplayName="武器"),
 	hidecategories=(Actor, Input, Replication, Cooking, Rendering, Collision, HLOD, WorldPartition, DataLayers, Networking),
-	PrioritizeCategories=("FPS|弹药", "FPS|射击", "FPS|武器"))
+	PrioritizeCategories=("FPS|弹药", "FPS|射击", "FPS|枪口", "FPS|开火音效", "FPS|开火特效", "FPS|开火动画", "FPS|武器"))
 class UE_LEARNFPS_API ACustomFPSWeapon : public AActor
 {
 	GENERATED_BODY()
@@ -206,6 +208,22 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|开火动画", meta=(DisplayName="瞄准武器开火"))
 	TObjectPtr<UAnimMontage> AimWeaponFire;
 
+	/** 每发实际射出时播放。空则不播。一次性 MetaSound 会在开始播放时触发自己的 On Play。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|开火音效", meta=(DisplayName="开火音效"))
+	TObjectPtr<UMetaSoundSource> FireSound;
+
+	/** 每发实际射出时在枪口播放。空则不播。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|开火特效", meta=(DisplayName="开火特效"))
+	TObjectPtr<UNiagaraSystem> FireEffect;
+
+	/** 音效和特效挂在这个部件的静态网格上。名字对应武器部件里的部件名。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪口", meta=(DisplayName="枪口部件"))
+	FName FireSoundPart = FName("Barrel");
+
+	/** 枪口部件网格上的插槽。音效和特效都挂在这里，不在武器骨骼上。找不到时挂在部件原点。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪口", meta=(DisplayName="枪口插槽"))
+	FName FireSoundSocket = FName("Muzzle");
+
 	/** 武器部件。每一项都是枪模型的子网格。 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|武器", meta=(DisplayName="武器部件", TitleProperty="PartName"))
 	TArray<FWeaponPartDesc> WeaponParts;
@@ -239,6 +257,10 @@ protected:
 	void ClearFireTimers();
 	void FireRound(AActor* RequestedBy);
 	void PlayFireAnimations();
+	void PlayFireSound();
+	void PlayFireEffect();
+	UStaticMeshComponent* FindWeaponPart(FName PartName) const;
+	bool ResolveMuzzle(USceneComponent*& OutComponent, FName& OutSocket) const;
 	void ScheduleAutoFire();
 	void HandleAutoFire();
 	void FinishBolt();
