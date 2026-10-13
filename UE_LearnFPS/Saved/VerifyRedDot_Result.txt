@@ -1,0 +1,10 @@
+blend_mode <BlendMode.BLEND_TRANSLUCENT: 2>
+shading_model <MaterialShadingModel.MSM_THIN_TRANSLUCENT: 11>
+translucency_lighting_mode <TranslucencyLightingMode.TLM_SURFACE_PER_PIXEL_LIGHTING: 5>
+refraction_method <RefractionMode.RM_PIXEL_NORMAL_OFFSET: 1>
+tangent_space_normal False
+two_sided False
+expressions 38
+scalar [Name("ReticleSize"), Name("TopRadius"), Name("BottomRadius"), Name("EdgeSoftness"), Name("TubeDepth"), Name("DistortWidth"), Name("EdgeBend"), Name("DotIntensity"), Name("ReticleOcclusion"), Name("LensSpecular"), Name("LensRoughness"), Name("EdgeRefraction")]
+vector [Name("ReticleDirection"), Name("ReticleUp"), Name("LensCenter"), Name("LensHalfSize"), Name("LensRight"), Name("LensUp"), Name("DotColor"), Name("GlassColor")]
+texture [Name("ReticleTexture")]

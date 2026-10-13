@@ -29,6 +29,7 @@ ACustomFPSCharacter::ACustomFPSCharacter()
 	FPSInput = CreateDefaultSubobject<UCustomFPSInputComponent>(TEXT("FPSInput"));
 	FPSLocomotion = CreateDefaultSubobject<UCustomFPSLocomotionComponent>(TEXT("FPSLocomotion"));
 	FPSView = CreateDefaultSubobject<UCustomFPSViewComponent>(TEXT("FPSView"));
+	FPSRecoil = CreateDefaultSubobject<UCustomFPSRecoilComponent>(TEXT("FPSRecoil"));
 	FPSWeapon = CreateDefaultSubobject<UCustomFPSWeaponComponent>(TEXT("FPSWeapon"));
 	FPSLocomotion->InitializeMovement(GetCharacterMovement());
 
@@ -199,6 +200,19 @@ bool ACustomFPSCharacter::IsHolderMoving_Implementation()
 	return GetSpeed() > 10.f;
 }
 
+bool ACustomFPSCharacter::IsHolderCrouching_Implementation()
+{
+	return IsCrouching();
+}
+
+void ACustomFPSCharacter::ApplyWeaponRecoil_Implementation(UCustomFPSRecoilData* RecoilData, FRotator ControlRise, FRotator CameraKick, FVector WeaponKickOffset, FRotator WeaponKickRotation)
+{
+	if (FPSRecoil && !bIsDead)
+	{
+		FPSRecoil->AddRecoil(RecoilData, ControlRise, CameraKick, WeaponKickOffset, WeaponKickRotation);
+	}
+}
+
 void ACustomFPSCharacter::StopWeaponFire_Implementation(AActor* RequestedBy)
 {
 	if (ACustomFPSWeapon* Weapon = GetEquippedWeapon())
@@ -247,6 +261,10 @@ void ACustomFPSCharacter::SetDead(bool bDead)
 	if (FPSView)
 	{
 		FPSView->Lean(0.f);
+	}
+	if (FPSRecoil)
+	{
+		FPSRecoil->ResetRecoil();
 	}
 	if (UCharacterMovementComponent* Movement = GetCharacterMovement())
 	{

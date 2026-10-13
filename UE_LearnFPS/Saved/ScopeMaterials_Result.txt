@@ -1,0 +1,32 @@
+mesh /Game/XL_FPSPack/Weapons/attachment/Attachment_sig-sauer-romeo-3.Attachment_sig-sauer-romeo-3
+bounds min=<Struct 'Vector' (0x000002548D2F2800) {x: -19.638693, y: -19.903009, z: -6.238018}> max=<Struct 'Vector' (0x000002548D2F2818) {x: 113.199551, y: 84.674823, z: 108.045490}>
+slot 0 name M_Attachments_sig-sauer-romeo3 material /Game/XL_FPSPack/Weapons/attachment/Material/Attachments_sig-sauer-romeo3/M_Attachments_sig-sauer-romeo3.M_Attachments_sig-sauer-romeo3
+    base /Game/XL_FPSPack/Weapons/attachment/Material/Attachments_sig-sauer-romeo3/M_Attachments_sig-sauer-romeo3.M_Attachments_sig-sauer-romeo3 blend <BlendMode.BLEND_OPAQUE: 0> shading <MaterialShadingModel.MSM_DEFAULT_LIT: 1> two_sided False
+slot 1 name M_08___Default material /Game/XL_FPSPack/Weapons/attachment/Material/Common/M_Common_Plastic_Mat.M_Common_Plastic_Mat
+    base /Game/XL_FPSPack/Weapons/attachment/Material/Common/M_Common_Plastic_Mat.M_Common_Plastic_Mat blend <BlendMode.BLEND_OPAQUE: 0> shading <MaterialShadingModel.MSM_DEFAULT_LIT: 1> two_sided False
+slot 2 name Holographc material /Game/CustomEditorBP/Weapon/M_RedDotLens_Inst.M_RedDotLens_Inst
+    instance /Game/CustomEditorBP/Weapon/M_RedDotLens_Inst.M_RedDotLens_Inst parent /Game/CustomEditorBP/Weapon/M_RedDotLens.M_RedDotLens
+    base /Game/CustomEditorBP/Weapon/M_RedDotLens.M_RedDotLens blend <BlendMode.BLEND_TRANSLUCENT: 2> shading <MaterialShadingModel.MSM_THIN_TRANSLUCENT: 11> two_sided False
+    scalar ReticleSize
+    scalar LensUVScale
+    scalar TopRadius
+    scalar BottomRadius
+    scalar EdgeSoftness
+    scalar TubeDepth
+    scalar MaxShadow
+    scalar DistortWidth
+    scalar EdgeBend
+    scalar DotIntensity
+    scalar ReticleOcclusion
+    scalar LensSpecular
+    scalar LensRoughness
+    scalar EdgeRefraction
+    vector ReticleDirection
+    vector ReticleUp
+    vector LensUVCenter
+    vector LensHalfSize
+    vector LensRight
+    vector LensUp
+    vector DotColor
+    vector GlassColor
+    texture ReticleTexture

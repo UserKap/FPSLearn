@@ -1,0 +1,38 @@
+instance /Game/XL_FPSPack/Weapons/attachment/Reticles/MI_Holographc_Inst6.MI_Holographc_Inst6
+scalar Emissive Intensity = 0.20000000298023224
+scalar Vertical OffSet = 0.5
+scalar Scale = 0.30000001192092896
+scalar Reflection Scale = 0.30000001192092896
+scalar Rotation = 0.0
+scalar Focal Size = 5.0
+vector Defuse Color = <Struct 'LinearColor' (0x00000236DF07A0E0) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>
+vector Emissive Color = <Struct 'LinearColor' (0x00000236DF07A0E0) {r: 0.642921, g: 1.000000, b: 0.000000, a: 1.000000}>
+vector OffSet = <Struct 'LinearColor' (0x00000236DF07A120) {r: 0.000000, g: 0.000000, b: 0.000000, a: 1.000000}>
+texparam crosshair = /Game/XL_FPSPack/Weapons/attachment/Reticles/Textures/T_Holographic_17.T_Holographic_17
+texture /Game/XL_FPSPack/Weapons/attachment/Reticles/Textures/T_Holographic_17.T_Holographic_17
+  compression_settings <TextureCompressionSettings.TC_DEFAULT: 0>
+  srgb True
+  lod_group <TextureGroup.TEXTUREGROUP_UI: 16>
+  address_x <TextureAddress.TA_WRAP: 0>
+  address_y <TextureAddress.TA_WRAP: 0>
+  mip_gen_settings <TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>
+  size 256 x 256
+base /Game/XL_FPSPack/Weapons/attachment/Reticles/M_Holographc.M_Holographc
+expressions ? Material: Property 'Expressions' for attribute 'expressions' on 'Material' is protected and cannot be read
+expression_collection ? Material: Failed to find property 'expression_collection' for attribute 'expression_collection' on 'Material'
+texture /Game/XL_FPSPack/Weapons/attachment/Reticles/Textures/T_Holographic_15.T_Holographic_15
+  compression_settings <TextureCompressionSettings.TC_DEFAULT: 0>
+  srgb True
+  lod_group <TextureGroup.TEXTUREGROUP_UI: 16>
+  address_x <TextureAddress.TA_WRAP: 0>
+  address_y <TextureAddress.TA_WRAP: 0>
+  mip_gen_settings <TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>
+  size 256 x 256
+texture /Game/XL_FPSPack/Weapons/attachment/Reticles/Textures/T_Holographic_17.T_Holographic_17
+  compression_settings <TextureCompressionSettings.TC_DEFAULT: 0>
+  srgb True
+  lod_group <TextureGroup.TEXTUREGROUP_UI: 16>
+  address_x <TextureAddress.TA_WRAP: 0>
+  address_y <TextureAddress.TA_WRAP: 0>
+  mip_gen_settings <TextureMipGenSettings.TMGS_FROM_TEXTURE_GROUP: 0>
+  size 256 x 256

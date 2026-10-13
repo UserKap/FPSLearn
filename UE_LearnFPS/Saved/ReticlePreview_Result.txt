@@ -1,0 +1,2 @@
+/Game/XL_FPSPack/Weapons/attachment/Reticles/Textures/T_Holographic_17 True
+/Game/XL_FPSPack/Weapons/attachment/Reticles/Textures/T_Holographic_15 True

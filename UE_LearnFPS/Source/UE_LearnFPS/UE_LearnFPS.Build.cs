@@ -21,7 +21,10 @@ public class UE_LearnFPS : ModuleRules
 			"Slate"
 		});
 
-		PrivateDependencyModuleNames.AddRange(new string[] { });
+		PrivateDependencyModuleNames.AddRange(new string[] {
+			"MetasoundEngine",
+			"Niagara"
+		});
 
 		PublicIncludePaths.AddRange(new string[] {
 			"UE_LearnFPS",

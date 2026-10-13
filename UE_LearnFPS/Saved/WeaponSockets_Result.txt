@@ -1,0 +1,46 @@
+WeaponMesh asset: /Game/XL_FPSPack/Weapons/MCX-VIRTUS/SK_MCX-VIRTUS.SK_MCX-VIRTUS
+WeaponMesh relative: <Struct 'Vector' (0x000002C3ED148D80) {x: 0.000000, y: 0.000000, z: 0.000000}> <Struct 'Rotator' (0x000002C3ED148D98) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>
+AimSocket name: AimSocket
+FireSoundPart: Barrel socket: Muzzle
+Bones: MCX-VIRTUS_Rig, root, body, Bolt, mag_releace, bolt_releace, Stock, Barrel, mag_1
+Bone MCX-VIRTUS_Rig: loc=(-62.29, -0.87, -240.74) rot=<Struct 'Rotator' (0x000002C3EB7EC920) {pitch: -0.000000, yaw: 0.000000, roll: 0.000008}> X=(1.00, 0.00, -0.00) Y=(-0.00, 1.00, -0.00) Z=(0.00, 0.00, 1.00)
+Bone root: loc=(0.00, 0.00, 0.00) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -0.000000, yaw: 0.000000, roll: 90.000001}> X=(1.00, 0.00, -0.00) Y=(-0.00, -0.00, -1.00) Z=(-0.00, 1.00, -0.00)
+Bone body: loc=(4.30, -0.00, -9.72) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -90.000000, yaw: 90.000000, roll: 0.000000}> X=(0.00, 0.00, -1.00) Y=(-1.00, -0.00, -0.00) Z=(-0.00, 1.00, 0.00)
+Bone Bolt: loc=(24.61, 0.00, 3.23) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -90.000000, yaw: 90.000000, roll: 0.000000}> X=(0.00, 0.00, -1.00) Y=(-1.00, -0.00, -0.00) Z=(-0.00, 1.00, 0.00)
+Bone mag_releace: loc=(31.78, -5.44, -10.89) rot=<Struct 'Rotator' (0x000002C3EB7EC920) {pitch: 0.000027, yaw: 0.000017, roll: 0.000008}> X=(1.00, 0.00, 0.00) Y=(-0.00, 1.00, -0.00) Z=(-0.00, 0.00, 1.00)
+Bone bolt_releace: loc=(30.25, -5.92, -4.54) rot=<Struct 'Rotator' (0x000002C3EB7EC9C0) {pitch: -0.000009, yaw: 0.000019, roll: 80.266599}> X=(1.00, 0.00, -0.00) Y=(-0.00, 0.17, -0.99) Z=(-0.00, 0.99, 0.17)
+Bone Stock: loc=(-23.96, 0.00, 7.60) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -90.000000, yaw: 90.000000, roll: 0.000000}> X=(0.00, 0.00, -1.00) Y=(-1.00, -0.00, -0.00) Z=(-0.00, 1.00, 0.00)
+Bone Barrel: loc=(55.26, 0.07, -5.50) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -0.000021, yaw: 0.000008, roll: 90.000000}> X=(1.00, 0.00, -0.00) Y=(-0.00, 0.00, -1.00) Z=(-0.00, 1.00, 0.00)
+Bone mag_1: loc=(42.92, -0.00, -26.88) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -0.000000, yaw: 179.999991, roll: -90.000001}> X=(-1.00, 0.00, -0.00) Y=(0.00, 0.00, 1.00) Z=(0.00, 1.00, -0.00)
+BoneScale MCX-VIRTUS_Rig (10.00, 10.00, 10.00)
+BoneScale root (10.00, 10.00, 10.00)
+BoneScale body (10.00, 10.00, 10.00)
+BoneScale Bolt (10.00, 10.00, 10.00)
+BoneScale mag_releace (10.00, 10.00, 10.00)
+BoneScale bolt_releace (10.00, 10.00, 10.00)
+BoneScale Stock (10.00, 10.00, 10.00)
+BoneScale Barrel (10.00, 10.00, 10.00)
+BoneScale mag_1 (10.00, 10.00, 10.00)
+MeshSocket Lens (bone body): loc=(26.04, -0.00, 17.75) rot=<Struct 'Rotator' (0x000002C3EB7EC9C0) {pitch: 0.000039, yaw: 0.000000, roll: -0.000000}> X=(1.00, 0.00, 0.00) Y=(-0.00, 1.00, 0.00) Z=(-0.00, -0.00, 1.00)
+MeshSocket Laser (bone body): loc=(99.37, 9.33, 3.71) rot=<Struct 'Rotator' (0x000002C3EB7ECA60) {pitch: 0.000036, yaw: -0.000005, roll: -90.000416}> X=(1.00, -0.00, 0.00) Y=(-0.00, -0.00, 1.00) Z=(-0.00, -1.00, -0.00)
+MeshSocket Muzzle (bone body): loc=(118.69, -0.00, 3.50) rot=<Struct 'Rotator' (0x000002C3EB7EC920) {pitch: -0.000039, yaw: 180.000000, roll: -90.000000}> X=(-1.00, 0.00, -0.00) Y=(-0.00, -0.00, 1.00) Z=(0.00, 1.00, 0.00)
+MeshSocket Mag 1 (bone mag_1): loc=(42.92, -0.00, -26.88) rot=<Struct 'Rotator' (0x000002C3EB7EC970) {pitch: 0.000000, yaw: -0.000009, roll: 0.000001}> X=(1.00, -0.00, 0.00) Y=(0.00, 1.00, -0.00) Z=(-0.00, 0.00, 1.00)
+MeshSocket Sight (bone body): loc=(0.50, -0.00, -0.02) rot=<Struct 'Rotator' (0x000002C3EB7EC9C0) {pitch: 0.000039, yaw: 0.000003, roll: -0.000295}> X=(1.00, 0.00, 0.00) Y=(-0.00, 1.00, 0.00) Z=(-0.00, -0.00, 1.00)
+MeshSocket Grip (bone body): loc=(90.76, -0.00, -9.30) rot=<Struct 'Rotator' (0x000002C3EB7ECA60) {pitch: 0.000039, yaw: 0.000000, roll: -0.000000}> X=(1.00, 0.00, 0.00) Y=(-0.00, 1.00, 0.00) Z=(-0.00, -0.00, 1.00)
+MeshSocket UI (bone body): loc=(0.45, -0.00, 17.97) rot=<Struct 'Rotator' (0x000002C3EB7EC920) {pitch: -90.000000, yaw: 90.000000, roll: 0.000000}> X=(0.00, 0.00, -1.00) Y=(-1.00, -0.00, -0.00) Z=(-0.00, 1.00, 0.00)
+MeshSocket Stock (bone Stock): loc=(-23.96, 0.00, 7.60) rot=<Struct 'Rotator' (0x000002C3EB7EC970) {pitch: 0.000039, yaw: 0.000000, roll: -0.000000}> X=(1.00, 0.00, 0.00) Y=(-0.00, 1.00, 0.00) Z=(-0.00, -0.00, 1.00)
+MeshSocket Barrel (bone Barrel): loc=(55.26, 0.07, -5.50) rot=<Struct 'Rotator' (0x000002C3EB7EC9C0) {pitch: -0.000021, yaw: 0.000008, roll: -0.000000}> X=(1.00, 0.00, -0.00) Y=(-0.00, 1.00, 0.00) Z=(0.00, -0.00, 1.00)
+MeshSocket AimSocket (bone body): loc=(-18.70, -0.00, 24.28) rot=<Struct 'Rotator' (0x000002C3EB7C5820) {pitch: -90.000000, yaw: 90.000000, roll: 0.000000}> X=(0.00, 0.00, -1.00) Y=(-1.00, -0.00, -0.00) Z=(-0.00, 1.00, 0.00)
+MeshSocket Ejection (bone body): loc=(44.07, 7.17, 4.88) rot=<Struct 'Rotator' (0x000002C3EB7ECAB0) {pitch: 0.000000, yaw: 90.000000, roll: 0.000039}> X=(-0.00, 1.00, 0.00) Y=(-1.00, -0.00, -0.00) Z=(-0.00, -0.00, 1.00)
+Part Barrel socket=Barrel mesh=/Game/XL_FPSPack/Weapons/MCX-VIRTUS/Mesh/DMR-X_Barrel.DMR-X_Barrel
+  StaticSocket Muzzle loc=<Struct 'Vector' (0x000002C3EA71D320) {x: 12.373345, y: 0.000003, z: 0.894396}> rot=<Struct 'Rotator' (0x000002C3EA71D338) {pitch: 0.000000, yaw: 0.000000, roll: 0.000000}>
+  Part Barrel Muzzle in weapon space: loc=(179.00, 0.07, 3.44) rot=<Struct 'Rotator' (0x000002C3EB7C5050) {pitch: -0.000021, yaw: 0.000008, roll: -0.000000}> X=(1.00, 0.00, -0.00) Y=(-0.00, 1.00, 0.00) Z=(0.00, -0.00, 1.00)
+  Bounds min=(-1.01, -0.81, -0.42) max=(12.52, 0.81, 2.32)
+Part Stock socket=Stock mesh=/Game/XL_FPSPack/Weapons/MCX-VIRTUS/Mesh/MCX_Stock.MCX_Stock
+  Bounds min=(-7.63, -0.72, -3.28) max=(0.30, 0.75, 0.76)
+Part Scope socket=Lens mesh=/Game/XL_FPSPack/Weapons/attachment/Attachment_sig-sauer-romeo-3.Attachment_sig-sauer-romeo-3
+  Bounds min=(-19.64, -19.90, -6.24) max=(113.20, 84.67, 108.05)
+Part Magazine socket=Mag 1 mesh=/Game/XL_FPSPack/Weapons/MCX-VIRTUS/Mesh/300-BACKOUT_30.300-BACKOUT_30
+  Bounds min=(-1.30, -0.52, -4.38) max=(1.87, 0.55, 2.67)
+Part Sight socket=Sight mesh=/Game/XL_FPSPack/Weapons/MCX-VIRTUS/Mesh/MCX-VIRTUS_Close_XSights.MCX-VIRTUS_Close_XSights
+  Bounds min=(-1.10, -0.49, 1.58) max=(17.12, 0.46, 2.24)

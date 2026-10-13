@@ -10,6 +10,7 @@
 #include "Curves/CurveFloat.h"
 #include "CustomFPSViewComponent.generated.h"
 
+class ACharacter;
 class UCameraComponent;
 class USceneComponent;
 class USkeletalMeshComponent;
@@ -17,7 +18,7 @@ class USkeletalMeshComponent;
 /** 鼠标视角、开镜视野、侧身，以及相机跟随骨骼。 */
 UCLASS(Blueprintable, ClassGroup=(CustomFPS), meta=(DisplayName="视角"),
 	hidecategories=(Object, ComponentTick, Tags, AssetUserData, Replication, ComponentReplication, Activation, Variable, Navigation, Cooking),
-	PrioritizeCategories=("FPS|节点", "FPS|偏移", "FPS|开镜抖动", "FPS|腰射晃动", "FPS|瞄准晃动", "FPS|瞄准", "FPS|侧身"))
+	PrioritizeCategories=("FPS|节点", "FPS|偏移", "FPS|开镜抖动", "FPS|腰射晃动", "FPS|瞄准晃动", "FPS|瞄准", "FPS|枪惯性", "FPS|自由瞄准", "FPS|侧身"))
 class UE_LEARNFPS_API UCustomFPSViewComponent : public UActorComponent
 {
 	GENERATED_BODY()
@@ -57,6 +58,21 @@ public:
 	/** 收枪进度。松手时从 0 走到 1，和举枪共用开镜速度。 */
 	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="AimExitAlpha", BlueprintThreadSafe))
 	float GetAimExitAlpha() const { return 1.f - AimSwayAlpha; }
+
+	/** 枪口相对镜头的偏离，度。X 向右为正，Y 向上为正。关掉自由瞄准时为 0。 */
+	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="FreeAimOffset", BlueprintThreadSafe))
+	FVector2D GetFreeAimOffset() const { return FreeAimOffset; }
+
+	/** 镜头和身体的朝向，不含侧身和晃动。关掉自由瞄准时和控制器一致。 */
+	UFUNCTION(BlueprintPure, Category="FPS|自由瞄准", meta=(DisplayName="镜头朝向"))
+	FRotator GetFreeAimViewRotation() const { return FreeAimViewRotation; }
+
+	/** 画面里枪实际指着的方向，带惯性落后于鼠标。以后打子弹用这个方向，不要直接用控制器旋转。 */
+	UFUNCTION(BlueprintPure, Category="FPS|枪惯性", meta=(DisplayName="枪口朝向"))
+	FRotator GetWeaponAimRotation() const { return WeaponAimRotation; }
+
+	/** 身体和移动用的偏航。开自由瞄准时跟镜头走，否则跟控制器走。 */
+	float GetBodyYaw() const;
 
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
@@ -149,6 +165,86 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|瞄准", meta=(DisplayName="开镜速度", ClampMin="0.01", ForceUnits="s"))
 	float AimDuration = 0.18f;
 
+	/** 打开后枪带惯性追鼠标，不再鼠标动多少枪就立刻动多少。关掉时枪直接跟鼠标。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪惯性", meta=(DisplayName="启用枪惯性"))
+	bool bEnableWeaponLag = true;
+
+	/** 腰射时枪追鼠标的弹簧频率。越小越沉、越拖。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪惯性", meta=(DisplayName="腰射跟随频率", ClampMin="0.1", ForceUnits="Hz", EditCondition="bEnableWeaponLag"))
+	float HipWeaponLagFrequency = 5.f;
+
+	/** 开镜时枪追鼠标的弹簧频率。开镜要跟手一些，一般比腰射大。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪惯性", meta=(DisplayName="开镜跟随频率", ClampMin="0.1", ForceUnits="Hz", EditCondition="bEnableWeaponLag"))
+	float AimWeaponLagFrequency = 9.f;
+
+	/** 枪追鼠标的阻尼。1 刚好不冲过头，小于 1 停手时枪会甩过一点再回来，像枪的重量。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪惯性", meta=(DisplayName="跟随阻尼", ClampMin="0.05", ClampMax="2", EditCondition="bEnableWeaponLag"))
+	float WeaponLagDamping = 0.65f;
+
+	/** 枪最多落后鼠标多少度，X 左右，Y 上下。猛甩时不会拖得太远。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|枪惯性", meta=(DisplayName="最大滞后", EditCondition="bEnableWeaponLag"))
+	FVector2D WeaponLagMaxAngle = FVector2D(10.f, 7.f);
+
+	/** 当前枪口朝向。 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|枪惯性", meta=(DisplayName="当前枪口朝向"))
+	FRotator WeaponAimRotation = FRotator::ZeroRotator;
+
+	/** 打开后鼠标先转枪，枪口偏出死区才带着镜头和身体转。关掉时镜头、枪和身体都直接跟鼠标。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="启用自由瞄准"))
+	bool bEnableFreeAim = true;
+
+	/** 腰射时枪口可以自由偏离镜头的范围，度。X 左右，Y 上下，是个椭圆。枪口在里面转，镜头不动。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="腰射死区", EditCondition="bEnableFreeAim"))
+	FVector2D HipFreeAimDeadZone = FVector2D(10.f, 6.f);
+
+	/** 开镜时的死区。镜头贴着瞄具，太大会看到瞄具歪掉。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="开镜死区", EditCondition="bEnableFreeAim"))
+	FVector2D AimFreeAimDeadZone = FVector2D(1.5f, 1.f);
+
+	/** 腰射时枪口最多偏离镜头多少度。镜头来不及跟时也不会超过这里，枪不会出画面。小于死区时按死区算。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="腰射最大偏离", EditCondition="bEnableFreeAim"))
+	FVector2D HipFreeAimMaxOffset = FVector2D(24.f, 15.f);
+
+	/** 开镜时枪口最多偏离镜头多少度。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="开镜最大偏离", EditCondition="bEnableFreeAim"))
+	FVector2D AimFreeAimMaxOffset = FVector2D(3.f, 2.f);
+
+	/** 镜头追枪口的弹簧频率。越大跟得越紧，越小越拖。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="跟随频率", ClampMin="0.1", ForceUnits="Hz", EditCondition="bEnableFreeAim"))
+	float FreeAimFollowFrequency = 2.5f;
+
+	/** 镜头追枪口的阻尼。1 刚好不冲过头，小于 1 会冲过一点再回来，像身体的惯性。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="跟随阻尼", ClampMin="0.05", ClampMax="2", EditCondition="bEnableFreeAim"))
+	float FreeAimFollowDamping = 0.75f;
+
+	/** 镜头最快转动速度，度每秒。猛甩鼠标时枪先到，镜头按这个速度追。0 不限制。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="最大转身速度", ClampMin="0", EditCondition="bEnableFreeAim"))
+	float FreeAimMaxTurnSpeed = 420.f;
+
+	/** 鼠标停下多久后，镜头开始慢慢回中对准枪口。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="回中等待", ClampMin="0", ForceUnits="s", EditCondition="bEnableFreeAim"))
+	float FreeAimRecenterDelay = 0.8f;
+
+	/** 回中速度。越大回得越快，0 不回中。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="回中速度", ClampMin="0", EditCondition="bEnableFreeAim"))
+	float FreeAimRecenterSpeed = 1.5f;
+
+	/** 枪偏离镜头时绕着转的支点，相对手臂锚点，镜头朝向的局部空间。X 前，Y 右，Z 上。0 是绕眼睛转，往后往下像绕肩膀转。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="枪摆动支点", ForceUnits="cm", EditCondition="bEnableFreeAim"))
+	FVector FreeAimPivotOffset = FVector(-12.f, 0.f, -10.f);
+
+	/** 在枪口实际指向的位置画一个红点。没有准星时用来调试。 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|自由瞄准", meta=(DisplayName="显示枪口指向"))
+	bool bDrawFreeAimDebug = false;
+
+	/** 当前镜头和身体的朝向。 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|自由瞄准", meta=(DisplayName="当前镜头朝向"))
+	FRotator FreeAimViewRotation = FRotator::ZeroRotator;
+
+	/** 当前枪口相对镜头的偏离，度。X 向右，Y 向上。 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|自由瞄准", meta=(DisplayName="当前枪口偏离"))
+	FVector2D FreeAimOffset = FVector2D::ZeroVector;
+
 	/** 侧身最大滚转角。负值为向左，正值为向右。 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="FPS|侧身", meta=(DisplayName="最大侧身角", ClampMin="0", ClampMax="89", ForceUnits="deg"))
 	float MaxLeanAngle = 20.f;
@@ -198,10 +294,18 @@ protected:
 	TWeakObjectPtr<USkeletalMeshComponent> PosePrerequisiteArms;
 	TWeakObjectPtr<USkeletalMeshComponent> PosePrerequisiteWeapon;
 
+	FVector2D FreeAimViewVelocity = FVector2D::ZeroVector;
+	float LastLookInputTime = 0.f;
+	bool bFreeAimInitialized = false;
+	FVector2D WeaponAimVelocity = FVector2D::ZeroVector;
+	bool bWeaponAimInitialized = false;
+
 	void EnsureViewIsCapturedAfterCameraUpdate();
 	void WaitForMeshPose(USkeletalMeshComponent* Mesh, TWeakObjectPtr<USkeletalMeshComponent>& Registered);
 
 	float GetAimKickAlpha() const;
+	void UpdateFreeAimView(ACharacter* Character, float DeltaTime);
+	void DrawFreeAimDebug(const ACharacter* Character, const FRotator& AimRotation) const;
 	void UpdateDrivenCamera(float DeltaTime);
 	FRotator ComputeBoneSway(const USkeletalMeshComponent* BodyMesh, float SwayScale, float MaxAngle) const;
 };

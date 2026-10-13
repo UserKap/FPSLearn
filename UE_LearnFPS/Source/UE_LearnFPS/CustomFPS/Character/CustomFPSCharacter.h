@@ -9,6 +9,7 @@
 #include "GameFramework/Character.h"
 #include "CustomFPS/Input/CustomFPSInputComponent.h"
 #include "CustomFPS/Locomotion/CustomFPSLocomotionComponent.h"
+#include "CustomFPS/View/CustomFPSRecoilComponent.h"
 #include "CustomFPS/View/CustomFPSViewComponent.h"
 #include "CustomFPS/Weapon/CustomFPSWeaponComponent.h"
 #include "CustomFPS/Weapon/CustomFPSWeaponHolder.h"
@@ -38,6 +39,10 @@ class UE_LEARNFPS_API ACustomFPSCharacter : public ACharacter, public ICustomFPS
 	/** 鼠标视角、开镜视野、侧身和相机骨骼。 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
 	TObjectPtr<UCustomFPSViewComponent> FPSView;
+
+	/** 开枪后的准星上抬、松手回落和镜头冲击。 */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
+	TObjectPtr<UCustomFPSRecoilComponent> FPSRecoil;
 
 	/** 武器装备槽。只保存要生成的武器类。 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category="FPS|组件", meta=(AllowPrivateAccess="true"))
@@ -100,6 +105,8 @@ public:
 	virtual bool IsHolderAiming_Implementation() override;
 	virtual bool IsHolderSprinting_Implementation() override;
 	virtual bool IsHolderMoving_Implementation() override;
+	virtual bool IsHolderCrouching_Implementation() override;
+	virtual void ApplyWeaponRecoil_Implementation(UCustomFPSRecoilData* RecoilData, FRotator ControlRise, FRotator CameraKick, FVector WeaponKickOffset, FRotator WeaponKickRotation) override;
 
 	/** 本地左右速度。向右为正，大约在 -1 到 1。 */
 	UFUNCTION(BlueprintPure, Category="Animation", meta=(DisplayName="MoveX", BlueprintThreadSafe))
@@ -174,6 +181,7 @@ public:
 	UCustomFPSInputComponent* GetFPSInput() const { return FPSInput; }
 	UCustomFPSLocomotionComponent* GetLocomotion() const { return FPSLocomotion; }
 	UCustomFPSViewComponent* GetView() const { return FPSView; }
+	UCustomFPSRecoilComponent* GetRecoil() const { return FPSRecoil; }
 	UCustomFPSWeaponComponent* GetWeapon() const { return FPSWeapon; }
 
 private:

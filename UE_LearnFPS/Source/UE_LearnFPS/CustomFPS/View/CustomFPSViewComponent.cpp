@@ -11,11 +11,13 @@
 #include "Components/SceneComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "CustomFPS/Locomotion/CustomFPSLocomotionComponent.h"
+#include "CustomFPS/View/CustomFPSRecoilComponent.h"
 #include "CustomFPS/Weapon/CustomFPSWeaponComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Curves/RichCurve.h"
+#include "DrawDebugHelpers.h"
 #include "GameFramework/PlayerController.h"
 #include "ReferenceSkeleton.h"
 
@@ -129,6 +131,11 @@ void UCustomFPSViewComponent::BeginPlay()
 		{
 			PrimaryComponentTick.AddPrerequisite(Movement, Movement->PrimaryComponentTick);
 		}
+		// 后坐力先改完控制器旋转，镜头这一帧才跟得上。
+		if (UCustomFPSRecoilComponent* Recoil = Character->FindComponentByClass<UCustomFPSRecoilComponent>())
+		{
+			PrimaryComponentTick.AddPrerequisite(Recoil, Recoil->PrimaryComponentTick);
+		}
 	}
 
 	UpdateCameraAttachment();
@@ -195,9 +202,178 @@ void UCustomFPSViewComponent::Look(float Yaw, float Pitch)
 		return;
 	}
 
+	if (!FMath::IsNearlyZero(Yaw) || !FMath::IsNearlyZero(Pitch))
+	{
+		if (const UWorld* World = GetWorld())
+		{
+			LastLookInputTime = World->GetTimeSeconds();
+		}
+	}
+
 	// 鼠标向上时 Pitch 为正，取反后视角向上。
 	Pawn->AddControllerYawInput(Yaw * LookSensitivityYaw);
 	Pawn->AddControllerPitchInput(-Pitch * LookSensitivityPitch);
+}
+
+float UCustomFPSViewComponent::GetBodyYaw() const
+{
+	if (bEnableFreeAim && bFreeAimInitialized)
+	{
+		return FreeAimViewRotation.Yaw;
+	}
+	const APawn* Pawn = GetOwner<APawn>();
+	return Pawn ? Pawn->GetControlRotation().Yaw : 0.f;
+}
+
+namespace
+{
+	/** 把偏离夹进椭圆。Radii 的 X 是左右半径，Y 是上下半径。 */
+	FVector2D ClampToEllipse(const FVector2D& Offset, const FVector2D& Radii)
+	{
+		const FVector2D Normalized(Offset.X / FMath::Max(Radii.X, 0.01f), Offset.Y / FMath::Max(Radii.Y, 0.01f));
+		const float Length = Normalized.Size();
+		return Length <= 1.f ? Offset : Offset / Length;
+	}
+
+	/**
+	 * 带速度的角度弹簧走一帧，返回这一帧转过的角度。阻尼小于 1 时会冲过一点再回来。
+	 * 帧时间长时拆成小步，弹簧不会炸。MaxSpeed 为 0 不限速。
+	 */
+	FVector2D StepAngleSpring(const FVector2D& Error, FVector2D& Velocity, float Frequency, float Damping, float MaxSpeed, float DeltaTime)
+	{
+		const float Omega = 2.f * UE_PI * FMath::Max(Frequency, 0.1f);
+		const int32 Steps = FMath::Clamp(FMath::CeilToInt(DeltaTime * 120.f), 1, 8);
+		const float StepTime = DeltaTime / Steps;
+		FVector2D Moved = FVector2D::ZeroVector;
+		for (int32 Index = 0; Index < Steps; ++Index)
+		{
+			const FVector2D Acceleration = (Error - Moved) * (Omega * Omega) - Velocity * (2.f * Damping * Omega);
+			Velocity += Acceleration * StepTime;
+			const float Speed = Velocity.Size();
+			if (MaxSpeed > 0.f && Speed > MaxSpeed)
+			{
+				Velocity *= MaxSpeed / Speed;
+			}
+			Moved += Velocity * StepTime;
+		}
+		return Moved;
+	}
+
+	FVector2D GetAngleOffset(const FRotator& From, const FRotator& To)
+	{
+		return FVector2D(FRotator::NormalizeAxis(To.Yaw - From.Yaw), FRotator::NormalizeAxis(To.Pitch - From.Pitch));
+	}
+}
+
+/** 枪追鼠标，镜头追枪。控制器旋转是鼠标给的瞄准，枪带惯性跟上，镜头只在枪口偏出死区后才跟。 */
+void UCustomFPSViewComponent::UpdateFreeAimView(ACharacter* Character, float DeltaTime)
+{
+	// 控制器的俯仰存成 0 到 360，往下看是 355 这种值，直接夹到 ±89 会变成笔直朝天。
+	const FRotator Control = Character->GetControlRotation().GetNormalized();
+	Character->bUseControllerRotationYaw = !bEnableFreeAim;
+
+	if (!bEnableWeaponLag || !bWeaponAimInitialized)
+	{
+		WeaponAimRotation = FRotator(Control.Pitch, Control.Yaw, 0.f);
+		WeaponAimVelocity = FVector2D::ZeroVector;
+		bWeaponAimInitialized = true;
+	}
+	else
+	{
+		const float Frequency = FMath::Lerp(HipWeaponLagFrequency, AimWeaponLagFrequency, AimSwayAlpha);
+		const FVector2D Moved = StepAngleSpring(GetAngleOffset(WeaponAimRotation, Control), WeaponAimVelocity, Frequency, WeaponLagDamping, 0.f, DeltaTime);
+		FRotator Gun(
+			FMath::Clamp(WeaponAimRotation.Pitch + Moved.Y, -89.f, 89.f),
+			FRotator::NormalizeAxis(WeaponAimRotation.Yaw + Moved.X),
+			0.f);
+		// 甩得再快，枪也不能落后鼠标太多。
+		const FVector2D Lag = GetAngleOffset(Gun, Control);
+		const FVector2D ClampedLag = ClampToEllipse(Lag, WeaponLagMaxAngle);
+		if (!ClampedLag.Equals(Lag, 0.001f))
+		{
+			Gun.Yaw = FRotator::NormalizeAxis(Control.Yaw - ClampedLag.X);
+			Gun.Pitch = FMath::Clamp(Control.Pitch - ClampedLag.Y, -89.f, 89.f);
+		}
+		WeaponAimRotation = Gun;
+	}
+
+	if (!bEnableFreeAim || !bFreeAimInitialized)
+	{
+		FreeAimViewRotation = FRotator(Control.Pitch, Control.Yaw, 0.f);
+		FreeAimViewVelocity = FVector2D::ZeroVector;
+		FreeAimOffset = FVector2D::ZeroVector;
+		bFreeAimInitialized = bEnableFreeAim;
+		return;
+	}
+
+	const FRotator Gun = WeaponAimRotation;
+	auto GetOffset = [&Gun](const FRotator& View)
+	{
+		return GetAngleOffset(View, Gun);
+	};
+	const FVector2D DeadZone(
+		FMath::Max(FMath::Lerp(HipFreeAimDeadZone.X, AimFreeAimDeadZone.X, AimSwayAlpha), 0.01f),
+		FMath::Max(FMath::Lerp(HipFreeAimDeadZone.Y, AimFreeAimDeadZone.Y, AimSwayAlpha), 0.01f));
+	const FVector2D MaxOffset(
+		FMath::Max(FMath::Lerp(HipFreeAimMaxOffset.X, AimFreeAimMaxOffset.X, AimSwayAlpha), DeadZone.X),
+		FMath::Max(FMath::Lerp(HipFreeAimMaxOffset.Y, AimFreeAimMaxOffset.Y, AimSwayAlpha), DeadZone.Y));
+
+	// 枪口在死区里时目标就是现在的偏离，镜头不追；偏出去时目标是死区边缘。
+	const FVector2D Offset = GetOffset(FreeAimViewRotation);
+	FVector2D TargetOffset = ClampToEllipse(Offset, DeadZone);
+	const UWorld* World = GetWorld();
+	const float Now = World ? World->GetTimeSeconds() : 0.f;
+	if (FreeAimRecenterSpeed > 0.f && Now - LastLookInputTime >= FreeAimRecenterDelay)
+	{
+		TargetOffset *= FMath::Max(0.f, 1.f - FreeAimRecenterSpeed * DeltaTime);
+	}
+
+	const FVector2D Moved = StepAngleSpring(Offset - TargetOffset, FreeAimViewVelocity, FreeAimFollowFrequency, FreeAimFollowDamping, FreeAimMaxTurnSpeed, DeltaTime);
+	FRotator View(
+		FMath::Clamp(FreeAimViewRotation.Pitch + Moved.Y, -89.f, 89.f),
+		FRotator::NormalizeAxis(FreeAimViewRotation.Yaw + Moved.X),
+		0.f);
+
+	// 硬边：镜头再拖，枪口也不能偏出这里，否则枪会出画面。
+	const FVector2D NewOffset = GetOffset(View);
+	const FVector2D Clamped = ClampToEllipse(NewOffset, MaxOffset);
+	if (!Clamped.Equals(NewOffset, 0.001f))
+	{
+		View.Yaw = FRotator::NormalizeAxis(Gun.Yaw - Clamped.X);
+		View.Pitch = FMath::Clamp(Gun.Pitch - Clamped.Y, -89.f, 89.f);
+	}
+
+	FreeAimViewRotation = View;
+	FreeAimOffset = GetOffset(View);
+	if (Character->GetController())
+	{
+		Character->SetActorRotation(FRotator(0.f, View.Yaw, 0.f));
+	}
+}
+
+/** 绘制瞄准调试信息 */
+void UCustomFPSViewComponent::DrawFreeAimDebug(const ACharacter* Character, const FRotator& AimRotation) const
+{
+	UWorld* World = GetWorld();
+	if (!bDrawFreeAimDebug || !World || !ArmsAnchor)
+	{
+		return;
+	}
+
+	FVector Start = ArmsAnchor->GetComponentLocation();
+	FVector Direction = AimRotation.Vector();
+	FCollisionQueryParams QueryParams(SCENE_QUERY_STAT(CustomFPSFreeAimDebug), false, Character);
+	// 有枪时用枪口和归零后的子弹方向，红点就是这一刻开枪的弹着点。
+	const UCustomFPSWeaponComponent* Weapons = Character->FindComponentByClass<UCustomFPSWeaponComponent>();
+	if (const ACustomFPSWeapon* Weapon = Weapons ? Weapons->GetEquippedWeapon() : nullptr)
+	{
+		Weapon->GetShotAim(Start, Direction);
+		QueryParams.AddIgnoredActor(Weapon);
+	}
+	const FVector End = Start + Direction * 10000.f;
+	FHitResult Hit;
+	const FVector Point = World->LineTraceSingleByChannel(Hit, Start, End, ECC_Visibility, QueryParams) ? Hit.ImpactPoint : End;
+	DrawDebugPoint(World, Point, 8.f, FColor::Red, false, 0.f, SDPG_Foreground);
 }
 
 /** 侧身 */
@@ -343,6 +519,12 @@ void UCustomFPSViewComponent::UpdateDrivenCamera(float DeltaTime)
 		return;
 	}
 
+	UpdateFreeAimView(Character, DeltaTime);
+	const FRotator ControlRotation = Character->GetControlRotation();
+	// 侧身滚转写在控制器上，枪和镜头都沿用。
+	const FRotator LookRotation(WeaponAimRotation.Pitch, WeaponAimRotation.Yaw, ControlRotation.Roll);
+	const FRotator ViewBaseRotation(FreeAimViewRotation.Pitch, FreeAimViewRotation.Yaw, ControlRotation.Roll);
+
 	const FVector EyeLocation = Character->GetActorLocation() + FVector(0.f, 0.f, Character->BaseEyeHeight);
 	FVector ReferenceWorld = EyeLocation;
 	FVector LiveDeltaWorld = FVector::ZeroVector;
@@ -361,7 +543,7 @@ void UCustomFPSViewComponent::UpdateDrivenCamera(float DeltaTime)
 			// 第一人称网格挂在我们每帧都会挪动的锚点下。用它当前的世界坐标会把骨骼偏移再叠一次。
 			const bool bMeshMovesWithView = (ArmsAnchor && BodyMesh->IsAttachedTo(ArmsAnchor)) || (Camera && BodyMesh->IsAttachedTo(Camera));
 			const FTransform MeshWorld = bMeshMovesWithView
-				? BodyMesh->GetRelativeTransform() * FTransform(Character->GetControlRotation(), EyeLocation)
+				? BodyMesh->GetRelativeTransform() * FTransform(ViewBaseRotation, EyeLocation)
 				: BodyMesh->GetComponentTransform();
 			const FVector AnimatedWorld = MeshWorld.TransformPosition(SocketLocal.GetLocation());
 			ReferenceWorld = MeshWorld.TransformPosition(ReferenceLocal.GetLocation());
@@ -373,7 +555,6 @@ void UCustomFPSViewComponent::UpdateDrivenCamera(float DeltaTime)
 	}
 
 	const FRotator YawRotation(0.f, Character->GetActorRotation().Yaw, 0.f);
-	const FRotator LookRotation = Character->GetControlRotation();
 	// Head 被拉向 AimSocket 时，这段位移不是身体晃动。瞄准过程中冻结开镜前的差值，避免枪和镜头追着瞄点往前冲。
 	const FVector LiveDeltaLocal = YawRotation.UnrotateVector(LiveDeltaWorld);
 	if (AimSwayAlpha <= KINDA_SMALL_NUMBER)
@@ -384,12 +565,21 @@ void UCustomFPSViewComponent::UpdateDrivenCamera(float DeltaTime)
 	const float LocationScale = FMath::Lerp(BoneLocationSwayScale, AimBoneLocationSwayScale, AimSwayAlpha);
 	const FVector LocalSway = BlendedLocalDelta * LocationScale;
 
+	const UCustomFPSRecoilComponent* Recoil = Character->FindComponentByClass<UCustomFPSRecoilComponent>();
 	if (ArmsAnchor)
 	{
+		// 枪身后坐只叠在手臂锚点上，手和枪一起动，不改控制器，也不进镜头的骨骼晃动。
+		const FVector WeaponKickOffset = Recoil ? Recoil->GetWeaponKickOffset() : FVector::ZeroVector;
+		const FRotator WeaponKickRotation = Recoil ? Recoil->GetWeaponKickRotation() : FRotator::ZeroRotator;
+		// 枪口偏离镜头时，枪绕支点转，不绕眼睛转，偏到边上时位置也跟着过去。
+		const FVector AnchorBase = ReferenceWorld + YawRotation.RotateVector(BlendedLocalDelta);
+		const FVector Pivot = AnchorBase + ViewBaseRotation.RotateVector(FreeAimPivotOffset);
+		const FQuat FreeAimDelta = LookRotation.Quaternion() * ViewBaseRotation.Quaternion().Inverse();
+		const FVector AnchorLocation = Pivot + FreeAimDelta.RotateVector(AnchorBase - Pivot);
 		ArmsAnchor->SetUsingAbsoluteLocation(true);
 		ArmsAnchor->SetUsingAbsoluteRotation(true);
-		ArmsAnchor->SetWorldLocation(ReferenceWorld + YawRotation.RotateVector(BlendedLocalDelta));
-		ArmsAnchor->SetWorldRotation(LookRotation);
+		ArmsAnchor->SetWorldLocation(AnchorLocation + LookRotation.RotateVector(WeaponKickOffset));
+		ArmsAnchor->SetWorldRotation((LookRotation.Quaternion() * WeaponKickRotation.Quaternion()).Rotator());
 	}
 
 	// 平滑只作用在骨骼晃动上。参考位置每帧跟着角色走，跑步不会把镜头落在枪托后面。
@@ -410,7 +600,7 @@ void UCustomFPSViewComponent::UpdateDrivenCamera(float DeltaTime)
 		+ YawRotation.RotateVector(SmoothedLocalSway)
 		+ FRotationMatrix(YawRotation).TransformVector(CameraAttachOffset * HipWeight);
 	const UCustomFPSWeaponComponent* Weapons = Character->FindComponentByClass<UCustomFPSWeaponComponent>();
-	const ACustomFPSWeapon* Weapon = Weapons ? Weapons->GetEquippedWeapon() : nullptr;
+	ACustomFPSWeapon* Weapon = Weapons ? Weapons->GetEquippedWeapon() : nullptr;
 	if (Weapon)
 	{
 		if (USkeletalMeshComponent* WeaponMesh = Weapon->GetWeaponMesh())
@@ -438,16 +628,24 @@ void UCustomFPSViewComponent::UpdateDrivenCamera(float DeltaTime)
 	Camera->SetUsingAbsoluteRotation(true);
 	Camera->bUsePawnControlRotation = false;
 
-	FRotator ViewRotation = Character->GetControlRotation();
+	FRotator ViewRotation = ViewBaseRotation;
 	const FRotator HipRotationOffset = CameraAttachRotation * HipWeight;
 	const float KickAlpha = GetAimKickAlpha();
-	const FRotator KickRotation = AimKickRotation * KickAlpha;
+	// 开枪的镜头冲击只加在画面上，不改控制器，所以不影响准星。
+	const FRotator RecoilKick = Recoil ? Recoil->GetCameraKick() : FRotator::ZeroRotator;
+	const FRotator KickRotation = AimKickRotation * KickAlpha + RecoilKick;
 	ViewRotation.Pitch = FRotator::NormalizeAxis(ViewRotation.Pitch + CurrentBoneSway.Pitch + HipRotationOffset.Pitch + KickRotation.Pitch);
 	ViewRotation.Yaw = FRotator::NormalizeAxis(ViewRotation.Yaw + CurrentBoneSway.Yaw + HipRotationOffset.Yaw + KickRotation.Yaw);
 	ViewRotation.Roll = FRotator::NormalizeAxis(ViewRotation.Roll + CurrentBoneSway.Roll + HipRotationOffset.Roll + KickRotation.Roll);
 	DesiredLocation += LookRotation.RotateVector(AimKickLocation * KickAlpha);
 	Camera->SetWorldLocation(DesiredLocation);
 	Camera->SetWorldRotation(ViewRotation);
+	// 枪这一帧的姿势已经算完，枪口插槽是最新的。
+	if (Weapon)
+	{
+		Weapon->UpdateReticle();
+	}
+	DrawFreeAimDebug(Character, LookRotation);
 }
 
 /** 更新相机附件 */
@@ -479,6 +677,8 @@ void UCustomFPSViewComponent::UpdateCameraAttachment()
 		bHasSmoothedLocalSway = false;
 		CachedLocalBoneDelta = FVector::ZeroVector;
 		AimSwayAlpha = 0.f;
+		bFreeAimInitialized = false;
+		bWeaponAimInitialized = false;
 		return;
 	}
 

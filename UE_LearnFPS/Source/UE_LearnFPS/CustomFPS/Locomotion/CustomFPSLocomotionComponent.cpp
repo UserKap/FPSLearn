@@ -7,6 +7,7 @@
 
 #include "Components/CapsuleComponent.h"
 #include "Components/SkeletalMeshComponent.h"
+#include "CustomFPS/View/CustomFPSViewComponent.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Math/RotationMatrix.h"
@@ -52,7 +53,9 @@ void UCustomFPSLocomotionComponent::Move(float Right, float Forward)
 		return;
 	}
 
-	const FRotator YawRotation(0.f, Character->GetControlRotation().Yaw, 0.f);
+	// 开自由瞄准时枪口和身体朝向不同，走路跟身体，不跟枪口。
+	const UCustomFPSViewComponent* View = Character->FindComponentByClass<UCustomFPSViewComponent>();
+	const FRotator YawRotation(0.f, View ? View->GetBodyYaw() : Character->GetControlRotation().Yaw, 0.f);
 	// 前后走角色右方向，左右走角色前方向，和当前输入轴一致。
 	Character->AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y), Forward);
 	Character->AddMovementInput(FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X), Right);
